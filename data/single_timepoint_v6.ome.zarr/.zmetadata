@@ -47,17 +47,17 @@
                             "coordinateTransformations": [
                                 {
                                     "scale": [
+                                        1,
                                         2,
-                                        2,
-                                        1
+                                        2
                                     ],
                                     "type": "scale"
                                 },
                                 {
                                     "translation": [
+                                        0,
                                         0.5,
-                                        0.5,
-                                        0
+                                        0.5
                                     ],
                                     "type": "translation"
                                 }
@@ -68,17 +68,17 @@
                             "coordinateTransformations": [
                                 {
                                     "scale": [
+                                        1,
                                         4,
-                                        4,
-                                        1
+                                        4
                                     ],
                                     "type": "scale"
                                 },
                                 {
                                     "translation": [
+                                        0,
                                         1.5,
-                                        1.5,
-                                        0
+                                        1.5
                                     ],
                                     "type": "translation"
                                 }
@@ -106,9 +106,9 @@
         },
         "scale0/image/.zarray": {
             "chunks": [
+                70,
                 128,
-                128,
-                2
+                128
             ],
             "compressor": {
                 "blocksize": 0,
@@ -123,9 +123,9 @@
             "filters": null,
             "order": "C",
             "shape": [
+                70,
                 1024,
-                1024,
-                2
+                1024
             ],
             "zarr_format": 2
         },
@@ -141,9 +141,9 @@
         },
         "scale1/image/.zarray": {
             "chunks": [
+                70,
                 128,
-                128,
-                2
+                128
             ],
             "compressor": {
                 "blocksize": 0,
@@ -158,9 +158,9 @@
             "filters": null,
             "order": "C",
             "shape": [
+                70,
                 512,
-                512,
-                2
+                512
             ],
             "zarr_format": 2
         },
@@ -176,9 +176,9 @@
         },
         "scale2/image/.zarray": {
             "chunks": [
+                70,
                 128,
-                128,
-                2
+                128
             ],
             "compressor": {
                 "blocksize": 0,
@@ -193,9 +193,9 @@
             "filters": null,
             "order": "C",
             "shape": [
+                70,
                 256,
-                256,
-                2
+                256
             ],
             "zarr_format": 2
         }
