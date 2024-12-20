@@ -1,0 +1,91 @@
+{
+    "multiscales": [
+        {
+            "@type": "ngff:Image",
+            "axes": [
+                {
+                    "name": "z",
+                    "type": "space",
+                    "unit": "space"
+                },
+                {
+                    "name": "y",
+                    "type": "space",
+                    "unit": "space"
+                },
+                {
+                    "name": "x",
+                    "type": "space",
+                    "unit": "space"
+                }
+            ],
+            "datasets": [
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "type": "scale"
+                        },
+                        {
+                            "translation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "type": "translation"
+                        }
+                    ],
+                    "path": "scale0/image"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                2,
+                                2,
+                                1
+                            ],
+                            "type": "scale"
+                        },
+                        {
+                            "translation": [
+                                0.5,
+                                0.5,
+                                0
+                            ],
+                            "type": "translation"
+                        }
+                    ],
+                    "path": "scale1/image"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                4,
+                                4,
+                                1
+                            ],
+                            "type": "scale"
+                        },
+                        {
+                            "translation": [
+                                1.5,
+                                1.5,
+                                0
+                            ],
+                            "type": "translation"
+                        }
+                    ],
+                    "path": "scale2/image"
+                }
+            ],
+            "name": "image",
+            "version": "0.4"
+        }
+    ]
+}
