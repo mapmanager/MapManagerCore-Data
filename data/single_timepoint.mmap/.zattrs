@@ -1,0 +1,66 @@
+{
+    "analysisParams": {
+        "__version__": 0.5,
+        "backgroundRoiGridOverlap": {
+            "currentValue": 0.1,
+            "defaultValue": 0.1,
+            "description": "Value that the background grid points are allowed to overlap",
+            "type": "float"
+        },
+        "backgroundRoiGridPoints": {
+            "currentValue": 5,
+            "defaultValue": 5,
+            "description": "Number of points used when calculating background ROI. Number of points (n), where grid is n x n",
+            "type": "int"
+        },
+        "brightestPathDistance": {
+            "currentValue": 10,
+            "defaultValue": 10,
+            "description": "Points along the tracing to find spine connection (anchor).",
+            "type": "int"
+        },
+        "channel": {
+            "currentValue": 0,
+            "defaultValue": 0,
+            "description": "Image color channel to find brightest connection of spine.",
+            "type": "int"
+        },
+        "maxChannels": {
+            "currentValue": 0,
+            "defaultValue": 0,
+            "description": "Max number of channels."
+        },
+        "roiExtend": {
+            "currentValue": 4,
+            "defaultValue": 4,
+            "description": "Number of pixels to extend spine head for spine ROI.",
+            "type": "int"
+        },
+        "roiRadius": {
+            "currentValue": 4,
+            "defaultValue": 4,
+            "description": "Width of spine ROI.",
+            "type": "int"
+        },
+        "segmentRadius": {
+            "currentValue": 4,
+            "defaultValue": 4,
+            "description": "Radius of segment tracing.",
+            "type": "int"
+        },
+        "segmentTracingMaxDistance": {
+            "currentValue": 90,
+            "defaultValue": 90,
+            "description": "Max distance to trace a brightest path with relatively low performance cost.",
+            "type": "int"
+        },
+        "zSpread": {
+            "currentValue": 3,
+            "defaultValue": 3,
+            "description": "Number of image slices for max project to find brightest connection of spine.",
+            "type": "int"
+        }
+    },
+    "lastSaveTime": "20241222 07:53",
+    "version": 1
+}

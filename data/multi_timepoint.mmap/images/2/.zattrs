@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "channelNames": {},
+        "metadataContrast": {
+            "color": "0x00FF00",
+            "maxContrast": 1,
+            "maxInt": 1,
+            "minContrast": 1,
+            "minInt": 1
+        },
+        "name": {
+            "channelNames": {},
+            "metadataContrast": {
+                "color": "0x00FF00",
+                "maxContrast": 1,
+                "maxInt": 1,
+                "minContrast": 1,
+                "minInt": 1
+            },
+            "name": {
+                "channelNames": {
+                    "0": "/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s2_ch1.tif"
+                },
+                "metadataContrast": {
+                    "color": "TODO: fix this",
+                    "maxContrast": 2481,
+                    "maxInt": 3241,
+                    "minContrast": 595,
+                    "minInt": 0
+                },
+                "name": "",
+                "physicalSize": {
+                    "unit": "\u00b5m",
+                    "x": 0.15,
+                    "y": 0.15
+                },
+                "voxel": {
+                    "x": 1024,
+                    "y": 1024,
+                    "z": 70
+                }
+            },
+            "physicalSize": {
+                "unit": "\u00b5m",
+                "x": 1,
+                "y": 1
+            },
+            "voxel": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        "physicalSize": {
+            "unit": "\u00b5m",
+            "x": 1,
+            "y": 1
+        },
+        "voxel": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        }
+    }
+}
