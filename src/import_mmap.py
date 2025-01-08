@@ -29,7 +29,7 @@ def fetchLocalFiles(numTimepoints = 5):
 
         # segmentCsv = '/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s0/rr30a_s0_la.txt',
 
-def createMap(numTimepoints : int = 5):
+def createMap(numTimepoints):
     """Create a map with a number of timepoints (images only.
     """
 
@@ -39,7 +39,7 @@ def createMap(numTimepoints : int = 5):
         ch1 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch1.tif'
         ch2 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch2.tif'
         loader.read(ch1, channel=0, time=tp)
-        # loader.read(ch2, channel=1, time=tp)
+        loader.read(ch2, channel=1, time=tp)
 
     # Create the annotation map
     map = MapAnnotations(loader,
@@ -376,8 +376,8 @@ def run(numTimepoints : int):
     print(map)
 
     if numTimepoints== 1:
-        savePath = '/Users/cudmore/Desktop/single_timepoint.mmap'
-        saveZipPath = '/Users/cudmore/Desktop/single_timepoint.zip.mmap'
+        savePath = '/Users/cudmore/Desktop/single_timepoint_20250108.mmap'
+        saveZipPath = '/Users/cudmore/Desktop/single_timepoint.zip_20250108.mmap'
     else:
         savePath = '/Users/cudmore/Desktop/multi_timepoint_seg.mmap'
         saveZipPath = '/Users/cudmore/Desktop/multi_timepoint_seg.zip.mmap'
@@ -415,7 +415,8 @@ if __name__ == '__main__':
     # 1) make a multi timepoint map
     
     # numTimepoints = 5
-    # run(numTimepoints)    
+    numTimepoints = 1
+    run(numTimepoints)    
 
     # connect xsegment in multi timepoint map
-    connectSegments2()
+    # connectSegments2()
