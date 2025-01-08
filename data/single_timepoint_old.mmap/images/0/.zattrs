@@ -1,0 +1,25 @@
+{
+    "metadata": {
+        "channelNames": {
+            "0": "/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s0_ch1.tif"
+        },
+        "metadataContrast": {
+            "color": "TODO: fix this",
+            "maxContrast": 3020,
+            "maxInt": 3452,
+            "minContrast": 701,
+            "minInt": 0
+        },
+        "name": "",
+        "physicalSize": {
+            "unit": "\u00b5m",
+            "x": 0.15,
+            "y": 0.15
+        },
+        "voxel": {
+            "x": 1024,
+            "y": 1024,
+            "z": 70
+        }
+    }
+}

@@ -1,7 +1,8 @@
 {
     "metadata": {
         "channelNames": {
-            "0": "/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s0_ch1.tif"
+            "0": "/Users/work/Library/Caches/pooch/0dec0a808b1b0ef665f21bd7f29d2c3c-rr30a_s0_ch1.tif",
+            "1": "/Users/work/Library/Caches/pooch/7c53c7f2db9d4dd4da742fdad5ffa07c-rr30a_s0_ch2.tif"
         },
         "metadataContrast": {
             "color": "TODO: fix this",
