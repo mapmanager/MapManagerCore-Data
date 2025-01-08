@@ -20,14 +20,14 @@
             "type": "int"
         },
         "channel": {
-            "currentValue": 0,
-            "defaultValue": 0,
+            "currentValue": 1,
+            "defaultValue": 1,
             "description": "Image color channel to find brightest connection of spine.",
             "type": "int"
         },
         "maxChannels": {
-            "currentValue": 0,
-            "defaultValue": 0,
+            "currentValue": 2,
+            "defaultValue": 2,
             "description": "Max number of channels."
         },
         "roiExtend": {
@@ -61,6 +61,6 @@
             "type": "int"
         }
     },
-    "lastSaveTime": "20241222 07:53",
+    "lastSaveTime": "20250108 11:44",
     "version": 1
 }
