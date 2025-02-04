@@ -19,3 +19,8 @@ git lfs track "*.mmap"
 List all files in local git
 
 git ls-tree --full-tree -r --name-only HEAD
+
+## Change Log
+
+20250204
+ - added Olsen raw nd2 file and mmap
