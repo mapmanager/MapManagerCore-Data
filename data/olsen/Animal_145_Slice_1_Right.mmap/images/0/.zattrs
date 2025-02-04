@@ -1,0 +1,41 @@
+{
+    "metadata": {
+        "channelNames": {
+            "0": "Untitled"
+        },
+        "experimentMetadata": {
+            "AcqDate": "",
+            "AcqTime": "",
+            "Age": "",
+            "CellType": "",
+            "Condition1": "",
+            "Condition2": "",
+            "Region": "",
+            "Sex": "",
+            "Species": "",
+            "Timer1": "",
+            "Timer2": ""
+        },
+        "metadataContrast": [
+            {
+                "color": "x00FF00",
+                "maxContrast": 12463,
+                "maxInt": 12761,
+                "minContrast": 3848,
+                "minInt": 85,
+                "name": "Undefined"
+            }
+        ],
+        "name": "",
+        "physicalSize": {
+            "unit": "micrometer",
+            "x": 0.15,
+            "y": 0.15
+        },
+        "voxel": {
+            "x": 1060,
+            "y": 1568,
+            "z": 29
+        }
+    }
+}
