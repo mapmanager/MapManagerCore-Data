@@ -5,7 +5,7 @@ import sys
 import pandas as pd  # to load igor csv files
 pd.options.mode.copy_on_write = True
 
-from mapmanagercore import MapAnnotations, MultiImageLoader
+from mapmanagercore import MapAnnotations  #, MultiImageLoader
 from mapmanagercore.logger import logger
 
 """Create a muli-timepoint map with images
@@ -29,17 +29,46 @@ def fetchLocalFiles(numTimepoints = 5):
 
         # segmentCsv = '/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s0/rr30a_s0_la.txt',
 
-def createMap(numTimepoints):
+def creatZarrLoader(numTimepoints:int):
+    from mapmanagercore.lazy_geo_pd_images.loader.mm_map_loader import mmMapLoader
+    from mapmanagercore.data import getTiffChannel_1, getTiffChannel_2
+
+    logger.info(f' creating empty loader')
+    zl = mmMapLoader()
+
+    path1 = getTiffChannel_1()
+    path2 = getTiffChannel_2()
+    
+    # append a new timepoint with image data from a file
+    _newTimepoint = zl.importTimepoint(path1)
+    # assert ok is True
+    assert zl.numTimepoints == 1
+
+    # append another channel
+    ok = zl.importChannel(path2, timepoint=_newTimepoint)
+    # assert ok is True, f'importChannel tp:{tp} failed'
+    assert zl.numChannels(_newTimepoint) == 2
+
+    # from pprint import pprint
+    # pprint(zl.metadata)
+    logger.info(f'done num timepoints {zl.numTimepoints} numchannels = {zl.numChannels(_newTimepoint)}')
+    return zl
+
+def createMap(numTimepoints) -> MapAnnotations:
     """Create a map with a number of timepoints (images only.
     """
 
-    loader = MultiImageLoader()
+    # v1
+    # loader = MultiImageLoader()
 
-    for tp in range(numTimepoints):
-        ch1 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch1.tif'
-        ch2 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch2.tif'
-        loader.read(ch1, channel=0, time=tp)
-        loader.read(ch2, channel=1, time=tp)
+    # for tp in range(numTimepoints):
+    #     ch1 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch1.tif'
+    #     ch2 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch2.tif'
+    #     loader.read(ch1, channel=0, time=tp)
+    #     loader.read(ch2, channel=1, time=tp)
+
+    # v2
+    loader = creatZarrLoader(numTimepoints)
 
     # Create the annotation map
     map = MapAnnotations(loader,
@@ -54,7 +83,7 @@ def createMap(numTimepoints):
     # map.close()  # is this neccessary ??? Seems to close the images ???
 
     logger.info(f'map:{map}')
-    
+        
     return map
 
 def loadSegments(map):
@@ -85,11 +114,16 @@ def loadSegments(map):
 
     _debugTpIdx = None  # 2
 
-    numTimepoints = map.getNumTimepoints()
+    # numTimepoints = map.getNumTimepoints()
     # numPntsAdded = 0  # number of tracing points
-    for tpNumber in range(numTimepoints):
-        tpIdx = tpNumber  # so we can debug timepoints
-        
+    timepointList = map.loader.metadata.timepointKeys
+    # for tpNumber in range(numTimepoints):
+
+    for tpNumber in timepointList:
+        # tpIdx = int(tpNumber)  # so we can debug timepoints
+        tpIdx = tpNumber
+        _tpIDx = int(tpIdx)  # 20240411 not necc (Again) our keys are int
+
         # if tpIdx == 0:
         #     logger.info('xxx skipping tpIdx 0')
         #     continue
@@ -102,12 +136,12 @@ def loadSegments(map):
         logger.info(f'ADDING tpIdx:{tpIdx} to {tp}')
 
         # make a df from imported csv
-        segmentCsv = segmentCsvList[tpIdx]
+        segmentCsv = segmentCsvList[_tpIDx]
         dfSegments = pd.read_csv(segmentCsv, header=1)
         theseCols = ['segmentID', 'x', 'y', 'z']
         dfSegments = dfSegments[theseCols]
         
-        spinesCsv = spineCsvList[tpIdx]
+        spinesCsv = spineCsvList[_tpIDx]
         dfSpines = pd.read_csv(spinesCsv, header=1)
         theseCols = ['roiType', 'segmentID', 'x', 'y', 'z']
         dfSpines = dfSpines[theseCols]
@@ -121,8 +155,8 @@ def loadSegments(map):
 
             # newSegmentID = map.newSegment()
             newSegmentID = tp.newSegment()
-            newSegmentID = int(newSegmentID)
-            logger.info(f'=== created newSegmentID:{newSegmentID} from original dfSegments["segmentID" {segment}]')
+            # newSegmentID = int(newSegmentID)
+            logger.info(f'=== created newSegmentID:{newSegmentID} {type(newSegmentID)} from original dfSegments["segmentID" {segment}]')
 
             # abb after newSegment, need to refresh/recreate ttp
             tp = map.getTimePoint(time=tpIdx)
@@ -157,7 +191,7 @@ def loadSegments(map):
                 # map.appendSegmentPoint(newSegmentID, x, y, z)
                 try:
                     # why is this in interactions.py ???
-                    # logger.info(f'newSegmentID:{newSegmentID} x:{x} {type(x)}')
+                    logger.info(f'=== appendSegmentPoint newSegmentID:{newSegmentID} x:{x} {type(x)} y:{y} z:{z}')
                     tp.appendSegmentPoint(newSegmentID, x, y, z)
         
                     # tp = map.getTimePoint(time=tpIdx)
@@ -186,6 +220,9 @@ def loadSegments(map):
             # map.segments[:]
             # abb 20241221 after newSegment, need to refresh/recreate ttp
             # tp = map.getTimePoint(time=tpIdx)
+
+            # 20250411
+            map.segments[:]
 
             addSpines = True  #segment == 0
             _numAddedSpines = 0
@@ -236,6 +273,9 @@ def loadSegments(map):
                         logger.info(f'   after addSpine() tpIdx:{tpIdx} newSegmentID:{newSegmentID}, tp is:')
                         print(f'tp:{tp}')  # call tp.__str__() -> str
 
+                logger.warning('  === calling spine[:]')
+                map.points[:]
+                
                 logger.info(f'   added _numAddedSpines:{_numAddedSpines} to tpIdx:{tpIdx} newSegmentID:{newSegmentID}')
                 logger.info(f'   tp is:{tp}')
 
@@ -245,7 +285,8 @@ def loadSegments(map):
                 # logger.info(f'3) after add spine points map: {map}')
                 # logger.info(f'   tp.points')
                 # print(tp.points)
-
+            break
+        
     return map
 
 def understandSlicing(mapPath : str):
@@ -375,15 +416,33 @@ def run(numTimepoints : int):
     logger.info('=== FINAL MAP IS:')
     print(map)
 
+    logger.info(f'  === calling points[:]')
+    map.points[:]
+    
+    logger.info(f'  === calling segments[:]')
+    map.segments[:]
+
+
+    logger.info(f'   === points is:')
+    print(map.points[:])
+
+    logger.info(f'   === segments is:')
+    print(map.segments[:])
+
+    logger.info(f'  === segment.columns are:')
+    print(map.segments[:].columns)
+
+    # _date = '20250322'
+    _date = '20250411'
     if numTimepoints== 1:
-        savePath = '/Users/cudmore/Desktop/single_timepoint_20250108.mmap'
-        saveZipPath = '/Users/cudmore/Desktop/single_timepoint.zip_20250108.mmap'
+        savePath = f'/Users/cudmore/Desktop/single_timepoint_{_date}.mmap'
+        saveZipPath = f'/Users/cudmore/Desktop/single_timepoint_{_date}.mmap.zip'
     else:
         savePath = '/Users/cudmore/Desktop/multi_timepoint_seg.mmap'
         saveZipPath = '/Users/cudmore/Desktop/multi_timepoint_seg.zip.mmap'
     print(f'savePath:{savePath}')
     map.save(savePath)
-    map.save(saveZipPath, compression='zip')
+    # map.save(saveZipPath)
 
     # this was just testing a few connections
     # tryConnectSpines()
@@ -392,6 +451,9 @@ def run(numTimepoints : int):
 
     # now use connectSpines.py
 
+    # test_load(savePath)
+    return savePath
+
 # def loadAndSaveAsZip():
 #     loadPath = '/Users/cudmore/Desktop/single_timepoint.mmap'
 #     map= MapAnnotations.load(path=loadPath)
@@ -399,6 +461,11 @@ def run(numTimepoints : int):
 #     saveZipPath = '/Users/cudmore/Desktop/single_timepoint.zip.mmap'
 #     print(f'saveZipPath:{saveZipPath}')
 #     map.save(saveZipPath, compression='zip')
+
+def test_load(path:str):
+    logger.info(f'path:{path}')
+
+    ma = MapAnnotations.load(path)
 
 def connectSegments2():
     loadPath = '/Users/cudmore/Desktop/multi_timepoint_seg.mmap'
@@ -409,14 +476,21 @@ def connectSegments2():
     segmentMap.save(savePath)
 
     saveZipPath = '/Users/cudmore/Desktop/multi_timepoint_seg_connected.zip.mmap'
-    segmentMap.save(saveZipPath, compression='zip')
+    # segmentMap.save(saveZipPath, compression='zip')
 
 if __name__ == '__main__':
     # 1) make a multi timepoint map
     
     # numTimepoints = 5
     numTimepoints = 1
-    run(numTimepoints)    
+    savedPath = run(numTimepoints)    
+
+    path = '/Users/cudmore/Desktop/single_timepoint_20250411.mmap'
+    test_load(path)
 
     # connect xsegment in multi timepoint map
     # connectSegments2()
+
+    # creatZarrLoader(1)
+
+    # test_load('/Users/cudmore/Desktop/single_timepoint_20250108.mmap')
