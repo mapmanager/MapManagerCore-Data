@@ -1,9 +1,14 @@
 import os
 import sys
+from pprint import pprint
 
-# import numpy as np
 import pandas as pd  # to load igor csv files
 pd.options.mode.copy_on_write = True
+
+import mapmanagercore
+
+from mapmanagercore.lazy_geo_pd_images.loader.mm_map_loader import mmMapLoader
+from mapmanagercore.data import getTiffChannel_1, getTiffChannel_2
 
 from mapmanagercore import MapAnnotations  #, MultiImageLoader
 from mapmanagercore.logger import logger
@@ -29,25 +34,31 @@ def fetchLocalFiles(numTimepoints = 5):
 
         # segmentCsv = '/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s0/rr30a_s0_la.txt',
 
-def creatZarrLoader(numTimepoints:int):
-    from mapmanagercore.lazy_geo_pd_images.loader.mm_map_loader import mmMapLoader
-    from mapmanagercore.data import getTiffChannel_1, getTiffChannel_2
+def creatZarrLoader(numTimepoints:int) -> mmMapLoader:
 
     logger.info(f' creating empty loader')
     zl = mmMapLoader()
 
-    path1 = getTiffChannel_1()
-    path2 = getTiffChannel_2()
-    
-    # append a new timepoint with image data from a file
-    _newTimepoint = zl.importTimepoint(path1)
-    # assert ok is True
-    assert zl.numTimepoints == 1
+    for tp in range(numTimepoints):
+        # path1 = getTiffChannel_1()
+        # path2 = getTiffChannel_2()
+        FileCh1 = os.path.join(localFolder, f'rr30a_s{tp}_ch1.tif')
+        FileCh2 = os.path.join(localFolder, f'rr30a_s{tp}_ch2.tif')
+        
+        # append a new timepoint with image data from a file
+        _newTimepoint = zl.importTimepoint(FileCh1)
+        # assert zl.numTimepoints == 1
 
-    # append another channel
-    ok = zl.importChannel(path2, timepoint=_newTimepoint)
-    # assert ok is True, f'importChannel tp:{tp} failed'
-    assert zl.numChannels(_newTimepoint) == 2
+        _channelMetadata = zl.metadata.getTimepoint(_newTimepoint).getChannelMetadata(1)
+        logger.info('_channelMetadata:')
+        pprint(_channelMetadata)
+
+        # append another channel
+        if 1:
+            _channel = zl.importChannel(FileCh2, timepoint=_newTimepoint)
+            logger.info(f'  2nd channel is _channel:{_channel}')
+            assert zl.numChannels(_newTimepoint) == 2
+
 
     # from pprint import pprint
     # pprint(zl.metadata)
@@ -55,32 +66,15 @@ def creatZarrLoader(numTimepoints:int):
     return zl
 
 def createMap(numTimepoints) -> MapAnnotations:
-    """Create a map with a number of timepoints (images only.
+    """Create a map with a number of timepoints (images only).
     """
 
-    # v1
-    # loader = MultiImageLoader()
-
-    # for tp in range(numTimepoints):
-    #     ch1 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch1.tif'
-    #     ch2 = f'/Users/cudmore/Sites/PyMapManager-Data/maps/rr30a/rr30a_s{tp}_ch2.tif'
-    #     loader.read(ch1, channel=0, time=tp)
-    #     loader.read(ch2, channel=1, time=tp)
-
-    # v2
     loader = creatZarrLoader(numTimepoints)
 
     # Create the annotation map
     map = MapAnnotations(loader,
-                        #  lineSegments=gp.GeoDataFrame(),
-                        #  points = gp.GeoDataFrame())
                          lineSegments=pd.DataFrame(),
                          points = pd.DataFrame())
-    
-    map.points[:]
-    map.segments[:]
-
-    # map.close()  # is this neccessary ??? Seems to close the images ???
 
     logger.info(f'map:{map}')
         
@@ -156,7 +150,7 @@ def loadSegments(map):
             # newSegmentID = map.newSegment()
             newSegmentID = tp.newSegment()
             # newSegmentID = int(newSegmentID)
-            logger.info(f'=== created newSegmentID:{newSegmentID} {type(newSegmentID)} from original dfSegments["segmentID" {segment}]')
+            logger.info(f'=== created newSegmentID:{newSegmentID} from original dfSegments["segmentID" {segment}]')
 
             # abb after newSegment, need to refresh/recreate ttp
             tp = map.getTimePoint(time=tpIdx)
@@ -191,7 +185,7 @@ def loadSegments(map):
                 # map.appendSegmentPoint(newSegmentID, x, y, z)
                 try:
                     # why is this in interactions.py ???
-                    logger.info(f'=== appendSegmentPoint newSegmentID:{newSegmentID} x:{x} {type(x)} y:{y} z:{z}')
+                    # logger.info(f'=== appendSegmentPoint newSegmentID:{newSegmentID} x:{x} {type(x)} y:{y} z:{z}')
                     tp.appendSegmentPoint(newSegmentID, x, y, z)
         
                     # tp = map.getTimePoint(time=tpIdx)
@@ -213,7 +207,7 @@ def loadSegments(map):
                 logger.info(f'  tp is:{tp}')
                 logger.info('  tp.segments[:]:')
                 print(tp.segments[:])
-
+            
             # logger.info('tp.segments[:] is:')
             # print(tp.segments[:])
             
@@ -273,7 +267,7 @@ def loadSegments(map):
                         logger.info(f'   after addSpine() tpIdx:{tpIdx} newSegmentID:{newSegmentID}, tp is:')
                         print(f'tp:{tp}')  # call tp.__str__() -> str
 
-                logger.warning('  === calling spine[:]')
+                logger.warning('  === calling points[:] after import spines/points')
                 map.points[:]
                 
                 logger.info(f'   added _numAddedSpines:{_numAddedSpines} to tpIdx:{tpIdx} newSegmentID:{newSegmentID}')
@@ -285,29 +279,17 @@ def loadSegments(map):
                 # logger.info(f'3) after add spine points map: {map}')
                 # logger.info(f'   tp.points')
                 # print(tp.points)
-            break
-        
+
+            if newSegmentID > 1:
+                continue
+
+            # if included, only do one segment
+            # break
+            # if index > 1:
+            #     logger.info(f'skipping segment from import: {index}')
+            #     continue
+
     return map
-
-def understandSlicing(mapPath : str):
-    map = MapAnnotations.load(mapPath)
-    print(map)
-
-    tpIdx = 1
-    tp1 = map.getTimePoint(tpIdx)
-
-    _segments = tp1.segments[:]
-    print(f'_segments:{type(_segments)}')
-
-    _points = tp1.points[:]
-    print(f'_points:{type(_points)}')
-
-    _points  = map.points[:]
-    segmentID = 6
-    segRows = map.points[ map.points['segmentID'] == segmentID]
-    print('=== segRows')
-    print(segRows[['segmentID', 'point']])
-    print(segRows.index)
 
 def tryConnectSpines():
     """Debug connect() spines from one tp to the next.
@@ -416,42 +398,38 @@ def run(numTimepoints : int):
     logger.info('=== FINAL MAP IS:')
     print(map)
 
-    logger.info(f'  === calling points[:]')
-    map.points[:]
-    
-    logger.info(f'  === calling segments[:]')
-    map.segments[:]
+    if 0:
+        logger.info(f'  === calling points[:]')
+        map.points[:]
 
+        logger.info(f'  === points.columns are:')
+        print(map.points.columns)
+        # print(map.points[['roiStats_ch1_max', 'roiStats_ch2_max']])
 
-    logger.info(f'   === points is:')
-    print(map.points[:])
+        logger.info(f'  === calling segments[:]')
+        map.segments[:]
 
-    logger.info(f'   === segments is:')
-    print(map.segments[:])
-
-    logger.info(f'  === segment.columns are:')
-    print(map.segments[:].columns)
+        logger.info(f'  === segment.columns are:')
+        print(map.segments.columns)
 
     # _date = '20250322'
-    _date = '20250411'
+    _date = '202504'
     if numTimepoints== 1:
-        savePath = f'/Users/cudmore/Desktop/single_timepoint_{_date}.mmap'
-        saveZipPath = f'/Users/cudmore/Desktop/single_timepoint_{_date}.mmap.zip'
+        savePath = f'data/202504/single_timepoint_{_date}.mmap'
+        # saveZipPath = f'/Users/cudmore/Desktop/single_timepoint_{_date}.mmap.zip'
     else:
-        savePath = '/Users/cudmore/Desktop/multi_timepoint_seg.mmap'
-        saveZipPath = '/Users/cudmore/Desktop/multi_timepoint_seg.zip.mmap'
-    print(f'savePath:{savePath}')
+        savePath = 'data/202504/multi_timepoint_seg.mmap'
+        # saveZipPath = '/Users/cudmore/Desktop/multi_timepoint_seg.zip.mmap'
+    print(f'map.save savePath:{savePath}')
     map.save(savePath)
     # map.save(saveZipPath)
 
     # this was just testing a few connections
     # tryConnectSpines()
-
-    # understandSlicing(savePath)
-
     # now use connectSpines.py
 
-    # test_load(savePath)
+    test_load(savePath)
+
     return savePath
 
 # def loadAndSaveAsZip():
@@ -462,10 +440,11 @@ def run(numTimepoints : int):
 #     print(f'saveZipPath:{saveZipPath}')
 #     map.save(saveZipPath, compression='zip')
 
-def test_load(path:str):
-    logger.info(f'path:{path}')
+def test_load(path:str) -> MapAnnotations:
+    logger.info(f'reloading saved map: {path}')
 
     ma = MapAnnotations.load(path)
+    return ma
 
 def connectSegments2():
     loadPath = '/Users/cudmore/Desktop/multi_timepoint_seg.mmap'
@@ -479,14 +458,22 @@ def connectSegments2():
     # segmentMap.save(saveZipPath, compression='zip')
 
 if __name__ == '__main__':
-    # 1) make a multi timepoint map
-    
+
+    # testing auto contrast
+    # createMap(1)
+    # sys.exit(1)
+
+    # works
     # numTimepoints = 5
     numTimepoints = 1
     savedPath = run(numTimepoints)    
+    sys.exit(1)
 
-    path = '/Users/cudmore/Desktop/single_timepoint_20250411.mmap'
-    test_load(path)
+    path = '/Users/cudmore/Desktop/single_timepoint_20250415.mmap'
+    ma = test_load(path)
+
+    from pprint import pprint
+    pprint(ma.points.columns)
 
     # connect xsegment in multi timepoint map
     # connectSegments2()
