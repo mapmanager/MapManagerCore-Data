@@ -50,8 +50,8 @@ def creatZarrLoader(numTimepoints:int) -> mmMapLoader:
         # assert zl.numTimepoints == 1
 
         _channelMetadata = zl.metadata.getTimepoint(_newTimepoint).getChannelMetadata(1)
-        logger.info('_channelMetadata:')
-        pprint(_channelMetadata)
+        # logger.info('_channelMetadata:')
+        # pprint(_channelMetadata)
 
         # append another channel
         if 1:
@@ -105,8 +105,7 @@ def loadSegments(map):
         ]
 
     addEveryPoint = 4  # only add every 4 points
-
-    _debugTpIdx = None  # 2
+    maxSegmentKey = 5
 
     # numTimepoints = map.getNumTimepoints()
     # numPntsAdded = 0  # number of tracing points
@@ -127,7 +126,8 @@ def loadSegments(map):
 
         tp = map.getTimePoint(time=tpIdx)
         
-        logger.info(f'ADDING tpIdx:{tpIdx} to {tp}')
+        logger.info(f'ADDING tpIdx:{tpIdx} to tp:')
+        print(tp)
 
         # make a df from imported csv
         segmentCsv = segmentCsvList[_tpIDx]
@@ -155,14 +155,6 @@ def loadSegments(map):
             # abb after newSegment, need to refresh/recreate ttp
             tp = map.getTimePoint(time=tpIdx)
             
-            if tpIdx == _debugTpIdx:
-                logger.warning(f'a) original tp is:{tp}')
-                # tp = map.getTimePoint(time=tpIdx)
-                logger.warning(f'b) re-fetch tp is:{tp}')
-
-                logger.info(f'  after newSegment() tpIdx:{tpIdx} newSegmentID:{newSegmentID}')
-                logger.info(f'tp is:{tp}')
-
             _numTracingPointsAdded = 0
             for index, row in dfSegment.iterrows():
                 # do not use index, it is row label from imported df
@@ -201,13 +193,6 @@ def loadSegments(map):
 
                 _numTracingPointsAdded += 1
 
-            if tpIdx == _debugTpIdx:
-                logger.info(f'3) after add segment points for tpIdx:{tpIdx}, map is: {map}')
-                logger.info(f'  added _numTracingPointsAdded:{_numTracingPointsAdded} to tpIdx:{tpIdx} newSegmentID:{newSegmentID}')
-                logger.info(f'  tp is:{tp}')
-                logger.info('  tp.segments[:]:')
-                print(tp.segments[:])
-            
             # logger.info('tp.segments[:] is:')
             # print(tp.segments[:])
             
@@ -221,6 +206,7 @@ def loadSegments(map):
             addSpines = True  #segment == 0
             _numAddedSpines = 0
             if addSpines:
+                logger.info(f'adding {len(dfSpine)} spines')
                 for index, row in dfSpine.iterrows():
                     # do not use index, it is row label from iported csv
 
@@ -237,19 +223,9 @@ def loadSegments(map):
                     y = int(y)
                     z = int(z)
 
-                    if tpIdx == _debugTpIdx:
-                        logger.info(f'calling addSpine() _numAddedSpines:{_numAddedSpines} tpIdx:{tpIdx} newSegmentID:{newSegmentID} x:{x} y:{y} z:{z}')
-                        logger.info(f'tp is:{tp}')
-
                     # 20241221 after merge with s-dev addSpine() is failing
                     # logger.info(f'addSpine() FAILING newSegmentID:{newSegmentID} x:{x} y:{y} z:{z}')
                     newSpineID = tp.addSpine(segmentId=newSegmentID, x=x, y=y, z=z)
-
-                    # _annotations holds full map and reflect addSpine()
-                    # if tpIdx == _debugTpIdx:
-                    #     logger.info('after add tp._annotations.points[:]')
-                    #     print(tp._annotations.points[:])
-                    #     sys.exit(1)
 
                     # need this after each edit
                     # single tp, points/segments is NOT updated (it is a copy)
@@ -263,31 +239,15 @@ def loadSegments(map):
 
                     _numAddedSpines += 1
 
-                    if tpIdx == _debugTpIdx:
-                        logger.info(f'   after addSpine() tpIdx:{tpIdx} newSegmentID:{newSegmentID}, tp is:')
-                        print(f'tp:{tp}')  # call tp.__str__() -> str
-
-                logger.warning('  === calling points[:] after import spines/points')
-                map.points[:]
+                # logger.warning('  === calling points[:] after import spines/points')
+                # map.points[:]
                 
                 logger.info(f'   added _numAddedSpines:{_numAddedSpines} to tpIdx:{tpIdx} newSegmentID:{newSegmentID}')
                 logger.info(f'   tp is:{tp}')
 
-                # logger.error('tp.points[:] IS FAILING')
-                # tp.points[:]
-                
-                # logger.info(f'3) after add spine points map: {map}')
-                # logger.info(f'   tp.points')
-                # print(tp.points)
-
-            if newSegmentID > 1:
-                continue
-
-            # if included, only do one segment
-            # break
-            # if index > 1:
-            #     logger.info(f'skipping segment from import: {index}')
-            #     continue
+            if newSegmentID > maxSegmentKey:
+                logger.info(f'1 skiaborting on segment from import: {index}')
+                break
 
     return map
 
@@ -420,7 +380,7 @@ def run(numTimepoints : int):
     else:
         savePath = 'data/202504/multi_timepoint_seg.mmap'
         # saveZipPath = '/Users/cudmore/Desktop/multi_timepoint_seg.zip.mmap'
-    print(f'map.save savePath:{savePath}')
+    print(f'=== map.save savePath:{savePath}')
     map.save(savePath)
     # map.save(saveZipPath)
 
@@ -466,7 +426,10 @@ if __name__ == '__main__':
     # works
     # numTimepoints = 5
     numTimepoints = 1
-    savedPath = run(numTimepoints)    
+    savedPath = run(numTimepoints)
+    """
+    zip -r0 ./data/202504/single_timepoint_202504.mmap.zip ./data/202504/single_timepoint_202504.mmap/.
+    """
     sys.exit(1)
 
     path = '/Users/cudmore/Desktop/single_timepoint_20250415.mmap'

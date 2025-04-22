@@ -75,7 +75,7 @@ def test_empty_map():
         logger.info(f'    2nd channel is _channel:{_channel}')
         assert loader.numChannels(_newTimepoint) == 2
 
-    logger.info('  creating MapAnnotations from loader')
+    logger.info('== creating MapAnnotations from loader')
     mmap = MapAnnotations(loader,
                          lineSegments=pd.DataFrame(),
                          points = pd.DataFrame())
@@ -89,8 +89,15 @@ def test_empty_map():
     # return
 
     savePath = 'data/202504/empty_map_202504.mmap'
-    logger.info('saving mmap:{savePath}')
+    logger.info('=== saving mmap:{savePath}')
     mmap.save(savePath)
+
+    logger.info('=== reload the map')
+    mmap = MapAnnotations.load(savePath)
+    logger.info(f'after reload mmap is:')
+    print(mmap)
+
+    # zip -r0 ./data/202504/empty_map_202504.mmap.zip ./data/202504/empty_map_202504.mmap/.
 
 if __name__ == '__main__':
     test_empty_map()
